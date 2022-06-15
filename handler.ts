@@ -1,5 +1,6 @@
 import { Handler } from "aws-lambda";
 import * as mysql from "mysql2";
+import { exec } from "node:child_process";
 
 const connection = mysql.createConnection({
   host: process.env.DATABASE_HOST,
@@ -26,4 +27,14 @@ export const hello: Handler = async (event: any) => {
       2
     ),
   };
+};
+
+export const migrate: Handler = async (event: any) => {
+  exec("knex migrate:latest --env production", (err, output) => {
+    if (err) {
+      console.log("could not execute migration: ", err);
+      return;
+    }
+    console.log("Migration output: \n", output);
+  });
 };
